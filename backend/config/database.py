@@ -4,12 +4,13 @@ import os
 
 load_dotenv()
 
-CLUSTER_URL = os.getenv("CLUSTER_URL")
+CLUSTER_URL = os.getenv("MONGO_URI")
+MONGO_DATABASE = os.getenv("MONGO_DATABASE")
 
 # Connexion à la base de données
 def get_database():
     client = MongoClient(CLUSTER_URL)
-    db = client["jobs_scraper"]
+    db = client[MONGO_DATABASE]
     return db
 
 if __name__ == "__main__":
