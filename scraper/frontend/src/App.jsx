@@ -523,16 +523,44 @@ const JobSearchApp = () => {
       <header className={`${darkMode ? 'bg-gray-800/80 border-gray-700/20' : 'bg-white/80 border-white/20'} backdrop-blur-md border-b sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <Briefcase className="w-6 h-6 text-white" />
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-white" />
+                </div>
+                <h1 className={`text-2xl font-bold bg-gradient-to-r ${darkMode ? 'from-gray-100 to-gray-400' : 'from-gray-900 to-gray-600'} bg-clip-text text-transparent`}>
+                  JobFinder Pro
+                </h1>
               </div>
-              <h1 className={`text-2xl font-bold bg-gradient-to-r ${darkMode ? 'from-gray-100 to-gray-400' : 'from-gray-900 to-gray-600'} bg-clip-text text-transparent`}>
-                JobFinder Pro
-              </h1>
+
+              {/* Navigation Links */}
+              <nav className="hidden md:flex items-center space-x-6">
+                <a
+                  href="#/"
+                  className={`text-sm font-medium ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 flex items-center space-x-1`}
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Accueil</span>
+                </a>
+                <a
+                  href="#/entreprises"
+                  className={`text-sm font-medium ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 flex items-center space-x-1`}
+                >
+                  <Building2 className="w-4 h-4" />
+                  <span>Entreprises</span>
+                </a>
+                <a
+                  href="#/connexion"
+                  className={`text-sm font-medium ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'} transition-colors duration-200 flex items-center space-x-1`}
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Connexion</span>
+                </a>
+              </nav>
             </div>
+
             <div className="flex items-center space-x-4">
-              <div className={`hidden md:flex items-center space-x-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <div className={`hidden lg:flex items-center space-x-4 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 <span className="flex items-center">
                   <Star className="w-4 h-4 mr-1 text-yellow-500" /> {filteredJobs.length} offres disponibles
                 </span>
@@ -543,7 +571,44 @@ const JobSearchApp = () => {
               >
                 {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
+
+              {/* Mobile menu button */}
+              <button className="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                <Filter className="w-5 h-5" />
+              </button>
             </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <nav className="flex flex-col space-y-3">
+              <a
+                href="#/"
+                className={`text-sm font-medium ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 flex items-center space-x-2 py-2`}
+              >
+                <Home className="w-4 h-4" />
+                <span>Accueil</span>
+              </a>
+              <a
+                href="#/entreprises"
+                className={`text-sm font-medium ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'} transition-colors duration-200 flex items-center space-x-2 py-2`}
+              >
+                <Building2 className="w-4 h-4" />
+                <span>Informations sur les entreprises</span>
+              </a>
+              <a
+                href="#/connexion"
+                className={`text-sm font-medium ${darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'} transition-colors duration-200 flex items-center space-x-2 py-2`}
+              >
+                <Users className="w-4 h-4" />
+                <span>Connexion</span>
+              </a>
+              <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} pt-2 border-t border-gray-200 dark:border-gray-700`}>
+                <span className="flex items-center">
+                  <Star className="w-3 h-3 mr-1 text-yellow-500" /> {filteredJobs.length} offres disponibles
+                </span>
+              </div>
+            </nav>
           </div>
         </div>
       </header>

@@ -2,11 +2,21 @@ from fastapi import FastAPI, HTTPException, Query
 from typing import List, Optional
 from models.JobItem import JobItem
 from config.database import get_database
-from bson import ObjectId
 from bson import ObjectId, errors
+from fastapi.middleware.cors import CORSMiddleware
+
 import re
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Frontend local en Vite/React
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/jobs", response_model=List[JobItem])
 def get_jobs(
