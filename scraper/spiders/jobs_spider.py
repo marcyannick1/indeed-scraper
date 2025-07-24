@@ -34,16 +34,16 @@ class JobsSpider(scrapy.Spider):
         loader = ItemLoader(item=JobItem(), response=response)
 
         # Champs texte simples
-        loader.add_css('title', 'main h1 span[itemprop="title"]::text', Join())
-        loader.add_css('company', 'div.media > div > h3::text', Join())
-        loader.add_css('location', 'p.t4.title-complementary > span:nth-child(1) > span:nth-child(5)::text', Join())
-        loader.add_css('contractType', 'dl > dd:nth-child(2)::text', Join())
-        loader.add_css('publishDate', 'p.t5.title-complementary > span:nth-child(1)::attr(content)', Join())
-        loader.add_css('description', 'div.description.col-sm-8.col-md-7 > p::text', Join('\n'))
+        loader.add_css('title', 'main h1 span[itemprop="title"]::text')
+        loader.add_css('company', 'div.media > div > h3::text')
+        loader.add_css('location', 'p.t4.title-complementary > span:nth-child(1) > span:nth-child(5)::text')
+        loader.add_css('contractType', 'dl > dd:nth-child(2)::text')
+        loader.add_css('publishDate', 'p.t5.title-complementary > span:nth-child(1)::attr(content)')
+        loader.add_css('description', 'div.description.col-sm-8.col-md-7 > p::text')
         loader.add_css('experience', 'ul.skill-list li span[itemprop="experienceRequirements"].skill-name::text')
         loader.add_css('skills',
                        'ul.skill-list li span[itemprop="skills"].skill-name::text, span.skill.skill-savoir span.skill-name::text')
-        loader.add_css('workMode', 'dd[itemprop="baseSalary"]::text', Join())
+        loader.add_css('workMode', 'dd[itemprop="baseSalary"]::text')
 
         min_salary = response.css('dd span[itemprop="minValue"]::attr(content)').get()
         max_salary = response.css('dd span[itemprop="maxValue"]::attr(content)').get()
