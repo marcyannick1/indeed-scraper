@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, MapPin, Calendar, Euro, Building2, Clock, Users, Filter, Briefcase, Star, ArrowLeft, Sun, Moon, Home, Wifi, MapPinIcon, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, MapPin, Calendar, Euro, Building2, Clock, Users, Filter, Briefcase, Star, ArrowLeft, Sun, Moon, Home, Wifi, MapPinIcon, X, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Minimize2, Maximize2 } from 'lucide-react';
 
 const JobSearchApp = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,6 +12,16 @@ const JobSearchApp = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    {
+      id: 1,
+      type: 'bot',
+      message: 'Bonjour ! 👋 Je suis votre assistant JobFinder. Comment puis-je vous aider aujourd\'hui ?',
+      timestamp: new Date()
+    }
+  ]);
+  const [chatInput, setChatInput] = useState('');
 
   // Fonction pour parser l'URL et extraire l'ID de l'offre
   const getJobIdFromUrl = () => {
@@ -292,6 +302,87 @@ const JobSearchApp = () => {
     setSalaryMin(20000);
     setSalaryMax(80000);
     setWorkModeFilter('');
+  };
+
+  // Chatbot logic
+  const getBotResponse = (userMessage) => {
+    const message = userMessage.toLowerCase();
+
+    if (message.includes('salaire') || message.includes('rémunération') || message.includes('paye')) {
+      return 'Les salaires varient selon le poste et l\'expérience. Sur notre site, vous pouvez filtrer par fourchette salariale dans les filtres avancés. La plupart de nos offres indiquent une fourchette de rémunération. 💰';
+    }
+
+    if (message.includes('remote') || message.includes('télétravail') || message.includes('distance')) {
+      return 'Nous avons de nombreuses offres en télétravail ! Utilisez le filtre "Mode de travail" pour trouver des postes 100% remote, hybrides ou sur site. 🏠💻';
+    }
+
+    if (message.includes('cv') || message.includes('candidature') || message.includes('postuler')) {
+      return 'Pour postuler, cliquez sur "Postuler" sur l\'offre qui vous intéresse. Assurez-vous d\'avoir un CV à jour et une lettre de motivation personnalisée. Bonne chance ! 📄✨';
+    }
+
+    if (message.includes('expérience') || message.includes('junior') || message.includes('débutant')) {
+      return 'Nous avons des offres pour tous les niveaux ! Utilisez le filtre "Expérience" pour trouver des postes adaptés à votre profil, du junior (1-3 ans) au senior (5+ ans). 🚀';
+    }
+
+    if (message.includes('entreprise') || message.includes('société') || message.includes('boite')) {
+      return 'Chaque offre contient des informations détaillées sur l\'entreprise. Cliquez sur "Détails" pour voir la taille, le secteur et la description de l\'entreprise. 🏢';
+    }
+
+    if (message.includes('localisation') || message.includes('ville') || message.includes('région')) {
+      return 'Utilisez le filtre de localisation pour chercher dans une ville ou région spécifique. Nous avons des offres partout en France ! 📍';
+    }
+
+    if (message.includes('tech') || message.includes('développeur') || message.includes('informatique')) {
+      return 'Nous avons de nombreuses offres tech ! React, Node.js, Python, Flutter... Utilisez la barre de recherche pour filtrer par technologie. 💻🔧';
+    }
+
+    if (message.includes('aide') || message.includes('help') || message.includes('comment')) {
+      return 'Je peux vous aider avec :\n• Recherche d\'offres par critères\n• Questions sur les salaires\n• Conseils pour postuler\n• Informations sur le télétravail\n• Navigation sur le site\n\nQue souhaitez-vous savoir ? 😊';
+    }
+
+    if (message.includes('merci') || message.includes('thanks')) {
+      return 'De rien ! Je suis là pour vous aider dans votre recherche d\'emploi. N\'hésitez pas si vous avez d\'autres questions ! 😊🎯';
+    }
+
+    if (message.includes('bonjour') || message.includes('salut') || message.includes('hello')) {
+      return 'Bonjour ! 👋 Bienvenue sur JobFinder Pro. Je peux vous aider à naviguer sur le site et répondre à vos questions sur la recherche d\'emploi. Comment puis-je vous assister ?';
+    }
+
+    // Réponse par défaut
+    return 'Je ne suis pas sûr de comprendre votre question. Je peux vous aider avec :\n• La recherche d\'offres\n• Les filtres disponibles\n• Les informations sur les entreprises\n• Les conseils pour postuler\n\nPouvez-vous être plus précis ? 🤔';
+  };
+
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      message: chatInput,
+      timestamp: new Date()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+
+    // Simulate bot response delay
+    setTimeout(() => {
+      const botResponse = {
+        id: Date.now() + 1,
+        type: 'bot',
+        message: getBotResponse(chatInput),
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, botResponse]);
+    }, 500);
+
+    setChatInput('');
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   // Page détail d'offre
@@ -712,6 +803,168 @@ const JobSearchApp = () => {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-t mt-16`}>
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Logo et description */}
+            <div className="md:col-span-1">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-white" />
+                </div>
+                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  JobFinder Pro
+                </h3>
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
+                Trouvez votre emploi idéal parmi des milliers d'offres sélectionnées.
+                La plateforme de référence pour votre carrière.
+              </p>
+            </div>
+
+            {/* Liens utiles */}
+            <div>
+              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+                Chercheurs d'emploi
+              </h4>
+              <ul className="space-y-2">
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Rechercher un emploi</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Conseils CV</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Préparer un entretien</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Tendances salaires</a></li>
+              </ul>
+            </div>
+
+            {/* Entreprises */}
+            <div>
+              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+                Entreprises
+              </h4>
+              <ul className="space-y-2">
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Publier une offre</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Solutions RH</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Tarifs</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Support</a></li>
+              </ul>
+            </div>
+
+            {/* À propos */}
+            <div>
+              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+                À propos
+              </h4>
+              <ul className="space-y-2">
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Notre mission</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Équipe</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Carrières</a></li>
+                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Contact</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Ligne de séparation */}
+          <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'} mt-8 pt-8`}>
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                © 2025 JobFinder Pro. Tous droits réservés.
+              </p>
+              <div className="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>
+                  Politique de confidentialité
+                </a>
+                <a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>
+                  Conditions d'utilisation
+                </a>
+                <a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>
+                  Cookies
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Chatbot */}
+      <div className="fixed bottom-6 right-6 z-50">
+        {!showChatbot ? (
+          <button
+            onClick={() => setShowChatbot(true)}
+            className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group hover:scale-110"
+          >
+            <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          </button>
+        ) : (
+          <div className={`w-80 h-96 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-2xl shadow-2xl border flex flex-col overflow-hidden`}>
+            {/* Header du chat */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-medium">Assistant JobFinder</h3>
+                  <p className="text-white/80 text-xs">En ligne</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowChatbot(false)}
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                <Minimize2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3">
+              {chatMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] p-3 rounded-2xl ${
+                      msg.type === 'user'
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                        : darkMode
+                        ? 'bg-gray-700 text-gray-200'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-line">{msg.message}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Tapez votre message..."
+                  className={`flex-1 px-3 py-2 rounded-xl border ${
+                    darkMode
+                      ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                      : 'border-gray-300 bg-white text-gray-900 placeholder-gray-500'
+                  } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm`}
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={!chatInput.trim()}
+                  className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       <style jsx>{`
         @keyframes fadeInUp {

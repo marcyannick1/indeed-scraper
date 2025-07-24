@@ -78,8 +78,42 @@ npm start
 \`\`\`
 project/
 ├── scraper/           # Scrapy spider et pipelines
-├── backend/           # API Node.js/Express
+├── backend/           # API FastAPI
 ├── frontend/          # Interface React.js
 ├── data/             # Données exportées (CSV/JSON)
 └── README.md         # Documentation
 \`\`\`
+
+
+# Autres 
+## 🤖 Chatbot Intelligent
+## Fonctionnalités
+
+1. **Bouton flottant en bas à droite avec animation** 
+2. **Interface moderne avec design glassmorphism** 
+4. **Réponses contextuelles basées sur des mots-clés** 
+5. **Mode sombre/clair adaptatif** 
+6. **Animation d'ouverture/fermeture fluide** 
+
+##  Questions Supportées
+**Le bot peut répondre à :**
+
+ **✅ Salaires : Informations sur les rémunérations**
+
+ **✅ Télétravail : Offres remote et hybrides**
+
+ **✅ Candidatures : Conseils pour postuler**
+
+ **✅ Expérience : Offres par niveau (junior/senior)**
+
+ **✅ Entreprises : Infos sur les sociétés**
+
+ **✅ Localisation : Recherche par ville/région**
+
+ **✅ Technologies : Offres tech et développement**
+
+ **✅ Navigation : Aide sur l'utilisation du site**
+
+## Exemples d'Interactions
+**Utilisateur :** "Comment chercher en télétravail ?"
+**Bot :** "Nous avons de nombreuses offres en télétravail ! Utilisez le filtre 'Mode de travail' pour trouver des postes 100% remote, hybrides ou sur site. 🏠💻"
