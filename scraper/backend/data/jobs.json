@@ -1,0 +1,102 @@
+[
+  {
+    "title": "Développeur Backend Node.js",
+    "company": "TechSphere",
+    "location": "Lyon",
+    "salary": "42000-50000",
+    "salaryMin": 42000,
+    "salaryMax": 50000,
+    "description": "Rejoignez une équipe agile pour construire des APIs robustes avec Node.js et MongoDB.",
+    "contractType": "CDI",
+    "experience": "2-5 ans",
+    "skills": ["Node.js", "MongoDB", "Express", "Docker"],
+    "publishDate": "2025-07-20",
+    "url": "https://example.com/job/6",
+    "workMode": "Hybride",
+    "companyInfo": {
+      "size": "50-100 employés",
+      "sector": "SaaS",
+      "description": "TechSphere développe des solutions cloud pour entreprises innovantes."
+    }
+  },
+  {
+    "title": "Développeur Frontend React",
+    "company": "WebNova",
+    "location": "Toulouse",
+    "salary": "39000-47000",
+    "salaryMin": 39000,
+    "salaryMax": 47000,
+    "description": "Développez des interfaces modernes et réactives avec React.js et Tailwind CSS.",
+    "contractType": "CDI",
+    "experience": "1-3 ans",
+    "skills": ["React", "JavaScript", "Tailwind", "Git"],
+    "publishDate": "2025-07-18",
+    "url": "https://example.com/job/7",
+    "workMode": "Présentiel",
+    "companyInfo": {
+      "size": "20-50 employés",
+      "sector": "Agence web",
+      "description": "WebNova accompagne les startups dans la création de plateformes digitales sur mesure."
+    }
+  },
+  {
+    "title": "Ingénieur DevOps",
+    "company": "CloudForge",
+    "location": "Remote",
+    "salary": "50000-60000",
+    "salaryMin": 50000,
+    "salaryMax": 60000,
+    "description": "Automatisez les pipelines CI/CD et déployez nos microservices sur AWS.",
+    "contractType": "CDI",
+    "experience": "3-6 ans",
+    "skills": ["CI/CD", "Docker", "Kubernetes", "AWS"],
+    "publishDate": "2025-07-19",
+    "url": "https://example.com/job/8",
+    "workMode": "Remote",
+    "companyInfo": {
+      "size": "100-200 employés",
+      "sector": "Cloud Computing",
+      "description": "CloudForge aide les entreprises à migrer et sécuriser leurs infrastructures dans le cloud."
+    }
+  },
+  {
+    "title": "Data Analyst Junior",
+    "company": "InsightLab",
+    "location": "Marseille",
+    "salary": "34000-40000",
+    "salaryMin": 34000,
+    "salaryMax": 40000,
+    "description": "Analysez les données utilisateurs pour améliorer l'engagement produit.",
+    "contractType": "CDD",
+    "experience": "0-2 ans",
+    "skills": ["SQL", "Python", "Pandas", "Power BI"],
+    "publishDate": "2025-07-17",
+    "url": "https://example.com/job/9",
+    "workMode": "Présentiel",
+    "companyInfo": {
+      "size": "10-50 employés",
+      "sector": "Data & Analytics",
+      "description": "InsightLab est une startup spécialisée dans l'analyse des données clients."
+    }
+  },
+  {
+    "title": "Développeur Fullstack JS",
+    "company": "StartX",
+    "location": "Lille",
+    "salary": "45000-52000",
+    "salaryMin": 45000,
+    "salaryMax": 52000,
+    "description": "Développez des applications complètes en React et Node.js au sein d’une équipe dynamique.",
+    "contractType": "CDI",
+    "experience": "2-4 ans",
+    "skills": ["JavaScript", "React", "Node.js", "MongoDB"],
+    "publishDate": "2025-07-21",
+    "url": "https://example.com/job/10",
+    "workMode": "Hybride",
+    "companyInfo": {
+      "size": "20-100 employés",
+      "sector": "Startup Tech",
+      "description": "StartX développe des solutions web innovantes pour le secteur éducatif."
+    }
+  }
+]
