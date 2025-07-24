@@ -1,23 +1,34 @@
+from typing import Optional, List, Union
 from pydantic import BaseModel
-from typing import Optional, List
+
+
+class SalaryRange(BaseModel):
+    min: float
+    max: float
+    unit: Optional[str] = None
+
+
+class SalaryValue(BaseModel):
+    value: float
+    unit: Optional[str] = None
+
 
 class CompanyInfo(BaseModel):
-    size: Optional[str]
-    sector: Optional[str]
-    description: Optional[str]
+    size: Optional[str] = None
+    description: Optional[str] = None
+    url: Optional[str] = None
+
 
 class JobItem(BaseModel):
-    title: str
-    company: Optional[str]
-    location: Optional[str]
-    salary: Optional[str]
-    salaryMin: Optional[float]
-    salaryMax: Optional[float]
-    description: Optional[str]
-    contractType: Optional[str]
-    experience: Optional[str]
-    skills: Optional[List[str]]
-    publishDate: Optional[str]
-    url: Optional[str]
-    workMode: Optional[str]
-    companyInfo: Optional[CompanyInfo]
+    title: Optional[str] = None
+    company: Optional[str] = None
+    location: Optional[str] = None
+    salary: Optional[Union[SalaryRange, SalaryValue]] = None
+    description: Optional[str] = None
+    contractType: Optional[str] = None
+    experience: Optional[str] = None
+    skills: Optional[List[str]] = None
+    publishDate: Optional[str] = None
+    url: Optional[str] = None
+    workMode: Optional[str] = None
+    companyInfo: Optional[CompanyInfo] = None
