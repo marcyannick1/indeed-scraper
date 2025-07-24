@@ -1,13 +1,25 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+from dotenv import load_dotenv
+import os
+import pymongo
+from pymongo.errors import DuplicateKeyError
 
+load_dotenv()
 
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+class MongoDBPipeline:
+    def open_spider(self, spider):
+        mongo_uri = os.getenv("MONGO_URI")
+        mongo_db = os.getenv("MONGO_DATABASE")
+        self.client = pymongo.MongoClient(mongo_uri)
+        self.db = self.client[mongo_db]
+        self.collection = self.db["offres"]
+        self.collection.create_index("url", unique=True)
 
+    def close_spider(self, spider):
+        self.client.close()
 
-class IndeedScraperPipeline:
     def process_item(self, item, spider):
+        try:
+            self.collection.insert_one(dict(item))
+        except DuplicateKeyError:
+            spider.logger.info(f"Offre déjà présente : {item['url']}")
         return item
