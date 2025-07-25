@@ -36,7 +36,6 @@ class JobsSpider(scrapy.Spider):
         # Champs texte simples
         loader.add_css('title', 'main h1 span[itemprop="title"]::text')
         loader.add_css('company', 'div.media > div > h3::text')
-        loader.add_css('location', 'p.t4.title-complementary > span:nth-child(1) > span:nth-child(5)::text')
         loader.add_css('contractType', 'dl > dd:nth-child(2)::text')
         loader.add_css('publishDate', 'p.t5.title-complementary > span:nth-child(1)::attr(content)')
         loader.add_css('description', 'div.description.col-sm-8.col-md-7 > p::text')
@@ -44,6 +43,20 @@ class JobsSpider(scrapy.Spider):
         loader.add_css('skills',
                        'ul.skill-list li span[itemprop="skills"].skill-name::text, span.skill.skill-savoir span.skill-name::text')
         loader.add_css('workMode', 'dd[itemprop="baseSalary"]::text')
+
+        postalCode = response.css('span[itemprop="address"] span[itemprop="postalCode"]::attr(content)').get()
+        city = response.css('span[itemprop="address"] span[itemprop="addressLocality"]::attr(content)').get()
+        region = response.css('span[itemprop="address"] span[itemprop="addressRegion"]::attr(content)').get()
+        country = response.css('span[itemprop="address"] span[itemprop="addressCountry"]::attr(content)').get()
+
+        location = {
+            "postalCode": postalCode,
+            "city": city,
+            "region": region,
+            "country": country,
+        }
+
+        loader.add_value('location', location)
 
         min_salary = response.css('dd span[itemprop="minValue"]::attr(content)').get()
         max_salary = response.css('dd span[itemprop="maxValue"]::attr(content)').get()
