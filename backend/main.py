@@ -1,12 +1,21 @@
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from models.JobItem import JobItem
 from config.database import get_database
-from bson import ObjectId
 from bson import ObjectId, errors
 import re
 
 app = FastAPI()
+
+# CORS Middleware config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # origine de ton frontend Vite
+    allow_credentials=True,
+    allow_methods=["*"],  # autorise GET, POST, etc.
+    allow_headers=["*"],  # autorise tous les headers
+)
 
 @app.get("/jobs", response_model=List[JobItem])
 def get_jobs(
@@ -31,8 +40,6 @@ def get_jobs(
     if experience:
         query["experience"] = {"$regex": re.escape(experience), "$options": "i"}
 
-    print("🔎 Query Mongo:", query)
-
     jobs_cursor = collection.find(query).skip(skip).limit(limit)
     jobs_list = list(jobs_cursor)
 
@@ -42,7 +49,6 @@ def get_jobs(
         jobs.append(JobItem(**job))
 
     return jobs
-
 
 @app.get("/jobs/{job_id}", response_model=JobItem)
 def get_job(job_id: str):
