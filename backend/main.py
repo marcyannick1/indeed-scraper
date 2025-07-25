@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from pydantic import BaseModel
 from models.JobItem import JobItem
 from config.database import get_database
 from bson import ObjectId, errors
@@ -11,24 +12,35 @@ app = FastAPI()
 # CORS Middleware config
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # origine de ton frontend Vite
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
-    allow_methods=["*"],  # autorise GET, POST, etc.
-    allow_headers=["*"],  # autorise tous les headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-@app.get("/jobs", response_model=List[JobItem])
+
+# Modèle de réponse avec pagination
+class PaginatedJobsResponse(BaseModel):
+    jobs: List[JobItem]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+
+# Nouveau endpoint avec pagination complète
+@app.get("/jobs", response_model=PaginatedJobsResponse)
 def get_jobs(
-    page: int = 1,
-    limit: int = 10,
-    location: Optional[str] = Query(None),
-    contractType: Optional[str] = Query(None),
-    experience: Optional[str] = Query(None)
+        page: int = Query(1, ge=1, description="Numéro de page"),
+        limit: int = Query(12, ge=1, le=50, description="Nombre d'éléments par page"),
+        location: Optional[str] = Query(None, description="Filtrer par localisation"),
+        contractType: Optional[str] = Query(None, description="Filtrer par type de contrat"),
+        experience: Optional[str] = Query(None, description="Filtrer par expérience")
 ):
     db = get_database()
     collection = db["jobs"]
-    skip = (page - 1) * limit
 
+    # Construire la query
     query = {}
 
     if location:
@@ -40,15 +52,77 @@ def get_jobs(
     if experience:
         query["experience"] = {"$regex": re.escape(experience), "$options": "i"}
 
-    jobs_cursor = collection.find(query).skip(skip).limit(limit)
-    jobs_list = list(jobs_cursor)
+    # Calculer le skip
+    skip = (page - 1) * limit
 
-    jobs = []
-    for job in jobs_list:
-        job["id"] = str(job.get("id") or job.get("_id", ObjectId()))
-        jobs.append(JobItem(**job))
+    try:
+        # Compter le total d'offres correspondant aux critères
+        total_count = collection.count_documents(query)
 
-    return jobs
+        # Récupérer les offres paginées
+        jobs_cursor = collection.find(query).skip(skip).limit(limit)
+        jobs_list = list(jobs_cursor)
+
+        # Formater les jobs
+        jobs = []
+        for job in jobs_list:
+            job["id"] = str(job.get("id") or job.get("_id", ObjectId()))
+            jobs.append(JobItem(**job))
+
+        # Calculer le nombre total de pages
+        total_pages = (total_count + limit - 1) // limit  # Équivalent à math.ceil(total_count / limit)
+
+        return PaginatedJobsResponse(
+            jobs=jobs,
+            total=total_count,
+            page=page,
+            limit=limit,
+            total_pages=total_pages
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des jobs: {str(e)}")
+
+
+# Endpoint pour récupérer les statistiques globales (optionnel)
+@app.get("/jobs/stats")
+def get_jobs_stats():
+    db = get_database()
+    collection = db["jobs"]
+
+    try:
+        # Statistiques par type de contrat
+        contract_stats = list(collection.aggregate([
+            {"$group": {"_id": "$contractType", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]))
+
+        # Statistiques par localisation (top 10)
+        location_stats = list(collection.aggregate([
+            {"$group": {"_id": "$location", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$limit": 10}
+        ]))
+
+        # Statistiques par expérience
+        experience_stats = list(collection.aggregate([
+            {"$group": {"_id": "$experience", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]))
+
+        # Total des offres
+        total_jobs = collection.count_documents({})
+
+        return {
+            "total_jobs": total_jobs,
+            "contract_types": contract_stats,
+            "top_locations": location_stats,
+            "experience_levels": experience_stats
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la récupération des statistiques: {str(e)}")
+
 
 @app.get("/jobs/{job_id}", response_model=JobItem)
 def get_job(job_id: str):
