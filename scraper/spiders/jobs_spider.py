@@ -7,9 +7,12 @@ from itemloaders.processors import Join
 class JobsSpider(scrapy.Spider):
     name = "jobs_spider"
     allowed_domains = ["candidat.francetravail.fr"]
-    start_urls = [
-        "https://candidat.francetravail.fr/offres/recherche?lieux=75D&motsCles=developpeur"
-    ]
+
+    def __init__(self, start_url=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.start_urls = [start_url] if start_url else [
+            "https://candidat.francetravail.fr/offres/recherche?lieux=75D&motsCles=developpeur"
+        ]
 
     def parse(self, response):
         job_cards = response.css("li.result")
@@ -60,7 +63,7 @@ class JobsSpider(scrapy.Spider):
 
         min_salary = response.css('dd span[itemprop="minValue"]::attr(content)').get()
         max_salary = response.css('dd span[itemprop="maxValue"]::attr(content)').get()
-        value_salary = response.css('dd span[itemprop="value"][content]').get()
+        value_salary = response.css('dd span[itemprop="value"]::attr(content)').get()
         unit_text = response.css('dd span[itemprop="unitText"]::attr(content)').get()
 
         if min_salary and max_salary:

@@ -81,4 +81,6 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 ITEM_PIPELINES = {
     'scraper.pipelines.MongoDBPipeline': 300,
+    'scraper.pipelines.ConvertPublishDatePipeline': 200,
+    'scraper.pipelines.CleanSelectedFieldsPipeline': 200,
 }

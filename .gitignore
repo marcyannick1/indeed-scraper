@@ -1,0 +1,10 @@
+# Environnements virtuels
+venv/
+.venv/
+
+# Dossiers PyCharm/IDE
+.idea/
+
+# Dossiers de cache Python
+__pycache__/
+**/__pycache__/
