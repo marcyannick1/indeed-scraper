@@ -1,23 +1,25 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, MapPin, Calendar, Euro, Building2, Clock, Users, Filter, Briefcase, Star, ArrowLeft, Sun, Moon, Home, Wifi, MapPinIcon, X, ChevronDown, ChevronUp, MessageCircle, Send, Bot, Minimize2, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
-// 2. Fonction pour normaliser les types de contrats
+
+// Fonction pour normaliser les types de contrats
 const normalizeContractType = (contractType) => {
   if (!contractType) return "Non précisé";
 
   // Nettoyer la chaîne : supprimer les \n, espaces en trop, etc.
   const cleaned = contractType.trim().replace(/\n/g, '');
 
-  // Extraire le type principal
-  if (cleaned.includes('CDI')) return 'CDI';
-  if (cleaned.includes('CDD')) return 'CDD';
-  if (cleaned.includes('Stage')) return 'Stage';
-  if (cleaned.includes('Freelance') || cleaned.includes('Indépendant')) return 'Freelance';
-  if (cleaned.includes('Alternance') || cleaned.includes('Apprentissage')) return 'Alternance';
-  if (cleaned.includes('Intérim')) return 'Intérim';
+  // Extraire le type principal avec une logique plus flexible
+  if (cleaned.toLowerCase().includes('cdi')) return 'CDI';
+  if (cleaned.toLowerCase().includes('cdd') || cleaned.toLowerCase().includes('durée déterminée')) return 'CDD';
+  if (cleaned.toLowerCase().includes('stage')) return 'Stage';
+  if (cleaned.toLowerCase().includes('freelance') || cleaned.toLowerCase().includes('indépendant')) return 'Freelance';
+  if (cleaned.toLowerCase().includes('alternance') || cleaned.toLowerCase().includes('apprentissage')) return 'Alternance';
+  if (cleaned.toLowerCase().includes('intérim')) return 'Intérim';
 
   // Si aucun match, retourner la version nettoyée
   return cleaned || "Non précisé";
 };
+
 const JobSearchApp = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -80,123 +82,96 @@ const JobSearchApp = () => {
   };
 
   // Fonction pour construire l'URL de l'API avec les filtres et la pagination
- const buildApiUrl = (page = 1, filters = {}) => {
-  const params = new URLSearchParams();
-  params.append('page', page.toString());
-  params.append('limit', '12');
+  const buildApiUrl = (page = 1, filters = {}) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', '12');
 
-  if (filters.location || locationFilter) {
-    params.append('location', filters.location || locationFilter);
-  }
+    if (filters.location || locationFilter) {
+      params.append('location', filters.location || locationFilter);
+    }
 
-  // CORRECTION ICI : Envoyer le type de contrat normalisé
-  if (filters.contractType || contractFilter) {
-    params.append('contractType', filters.contractType || contractFilter);
-  }
+    // CORRECTION : Envoyer le terme de recherche contractType tel quel à l'API
+    if (filters.contractType || contractFilter) {
+      params.append('contractType', filters.contractType || contractFilter);
+    }
 
-  if (filters.experience || experienceFilter) {
-    params.append('experience', filters.experience || experienceFilter);
-  }
+    if (filters.experience || experienceFilter) {
+      params.append('experience', filters.experience || experienceFilter);
+    }
 
-  return `http://localhost:8000/jobs?${params.toString()}`;
-};
-
+    return `http://localhost:8000/jobs?${params.toString()}`;
+  };
 
   // Fonction pour récupérer les offres avec pagination
   const fetchJobs = async (page = 1, filters = {}) => {
-  setLoading(true);
-  try {
-    const url = buildApiUrl(page, filters);
-    console.log("🔗 URL API :", url);
+    setLoading(true);
+    try {
+      const url = buildApiUrl(page, filters);
+      console.log("🔗 URL API :", url);
 
-    const response = await fetch(url);
-    const data = await response.json();
+      const response = await fetch(url);
+      const data = await response.json();
 
-    console.log("✅ Données brutes reçues :", data);
+      console.log("✅ Données brutes reçues :", data);
 
-    // DEBUG : Vérifier les types de contrats reçus
-    console.log("📋 Types de contrats dans les données :",
-      data.jobs.map(job => ({
-        title: job.title,
-        contractType: job.contractType,
-        normalized: normalizeContractType(job.contractType)
-      }))
-    );
-
+      // DEBUG : Vérifier les types de contrats reçus
+      console.log("📋 Types de contrats dans les données :",
+        data.jobs.map(job => ({
+          title: job.title,
+          contractType: job.contractType,
+          normalized: normalizeContractType(job.contractType)
+        }))
+      );
 
       // Transformer les données reçues selon le nouveau format
-      // 1. Améliorer la transformation des données côté client
-const formattedJobs = data.jobs.map((job) => ({
-  id: job.id || job._id,
-  title: job.title || "Titre non renseigné",
-  company: job.company?.trim() || "Entreprise inconnue",
-  location: job.location?.city
-    ? `${job.location.city}, ${job.location.region}`
-    : (typeof job.location === "string" ? job.location : "Localisation inconnue"),
-  salary: job.salary ? `${job.salary.min}-${job.salary.max}` : "Salaire non communiqué",
-  salaryMin: job.salary?.min || 0,
-  salaryMax: job.salary?.max || 0,
-  description: job.description || "Description non disponible",
-  fullDescription: job.description || "Description non disponible",
+      const formattedJobs = data.jobs.map((job) => ({
+        id: job.id || job._id,
+        title: job.title || "Titre non renseigné",
+        company: job.company?.trim() || "Entreprise inconnue",
+        location: job.location?.city
+          ? `${job.location.city}, ${job.location.region}`
+          : (typeof job.location === "string" ? job.location : "Localisation inconnue"),
+        salary: job.salary ? `${job.salary.min}-${job.salary.max}` : "Salaire non communiqué",
+        salaryMin: job.salary?.min || 0,
+        salaryMax: job.salary?.max || 0,
+        description: job.description || "Description non disponible",
+        fullDescription: job.description || "Description non disponible",
 
-  // CORRECTION ICI : Nettoyer et normaliser le type de contrat
-  contractType: normalizeContractType(job.contractType),
+        // CORRECTION : Garder le type original ET la version normalisée
+        originalContractType: job.contractType,
+        contractType: normalizeContractType(job.contractType),
 
-  experience: job.experience || "Non précisé",
-  skills: job.skills || [],
-  publishDate: job.publishDate || "",
-  url: job.url || "#",
-  workMode: job.workMode || "Sur site",
-  companyInfo: {
-    size: job.companyInfo?.size?.trim() || "Taille inconnue",
-    sector: job.companyInfo?.sector || "Secteur non renseigné",
-    description: job.companyInfo?.description || "",
-  },
-}));
+        experience: job.experience || "Non précisé",
+        skills: job.skills || [],
+        publishDate: job.publishDate || "",
+        url: job.url || "#",
+        workMode: job.workMode || "Sur site",
+        companyInfo: {
+          size: job.companyInfo?.size?.trim() || "Taille inconnue",
+          sector: job.companyInfo?.sector || "Secteur non renseigné",
+          description: job.companyInfo?.description || "",
+        },
+      }));
 
-    setJobOffers(formattedJobs);
-    setTotalJobs(data.total);
-    setTotalPages(data.total_pages);
-    setCurrentPage(data.page);
+      setJobOffers(formattedJobs);
+      setTotalJobs(data.total);
+      setTotalPages(data.total_pages);
+      setCurrentPage(data.page);
 
-  } catch (err) {
-    console.error("❌ Erreur API :", err);
-    setJobOffers([]);
-    setTotalJobs(0);
-    setTotalPages(0);
-  } finally {
-    setLoading(false);
-  }
-};
-
-// 6. Option : Filtrage hybride (serveur + client)
-// Si votre API ne gère pas bien le nettoyage, faites le filtrage côté client uniquement :
-const fetchJobsClientSideFiltering = async (page = 1) => {
-  setLoading(true);
-  try {
-    // Récupérer TOUTES les offres sans filtres côté serveur
-    const url = `http://localhost:8000/jobs?page=${page}&limit=12`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const formattedJobs = data.jobs.map((job) => ({
-      // ... votre mapping avec normalizeContractType
-      contractType: normalizeContractType(job.contractType),
-    }));
-
-    setJobOffers(formattedJobs);
-
-  } catch (err) {
-    console.error("❌ Erreur API :", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    } catch (err) {
+      console.error("❌ Erreur API :", err);
+      setJobOffers([]);
+      setTotalJobs(0);
+      setTotalPages(0);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Effet pour charger les offres au montage et lors des changements de filtres
   useEffect(() => {
+    setCurrentPage(1); // CORRECTION : Reset de la page à 1 lors du changement de filtres
     fetchJobs(1, {
       location: locationFilter,
       contractType: contractFilter,
@@ -246,30 +221,23 @@ const fetchJobsClientSideFiltering = async (page = 1) => {
     }
   }, [selectedJob]);
 
-  // Filtrage côté client pour la recherche par terme et salaire
-const filteredJobs = useMemo(() => {
-  return jobOffers.filter(job => {
-    const matchesSearch = !searchTerm ||
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
+  // CORRECTION : Filtrage côté client uniquement pour la recherche par terme et salaire
+  // Les autres filtres sont gérés côté serveur
+  const filteredJobs = useMemo(() => {
+    return jobOffers.filter(job => {
+      const matchesSearch = !searchTerm ||
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesSalary = job.salaryMin >= salaryMin && job.salaryMax <= salaryMax;
-    const matchesWorkMode = !workModeFilter || job.workMode === workModeFilter;
+      const matchesSalary = job.salaryMin >= salaryMin && job.salaryMax <= salaryMax;
+      const matchesWorkMode = !workModeFilter || job.workMode === workModeFilter;
 
-    // CORRECTION ICI : Filtrage plus flexible pour le type de contrat
-    const matchesContract = !contractFilter ||
-  normalizeContractType(job.contractType) === normalizeContractType(contractFilter);
-      job.contractType.toLowerCase().includes(contractFilter.toLowerCase());
-  console.log("🔍 Filtrage contrat :", {
-  filter: contractFilter,
-  values: jobOffers.map(j => j.contractType),
-  matched: jobOffers.filter(j => j.contractType === contractFilter)
-});
-
-    return matchesSearch && matchesSalary && matchesWorkMode && matchesContract;
-  });
-}, [searchTerm, salaryMin, salaryMax, workModeFilter, contractFilter, jobOffers]);
+      // CORRECTION : Plus de filtrage côté client pour les contrats
+      // car c'est géré côté serveur maintenant
+      return matchesSearch && matchesSalary && matchesWorkMode;
+    });
+  }, [searchTerm, salaryMin, salaryMax, workModeFilter, jobOffers]);
 
   // Fonction pour changer de page
   const handlePageChange = (newPage) => {
@@ -370,7 +338,7 @@ const filteredJobs = useMemo(() => {
     setCurrentPage(1);
   };
 
-  // Chatbot logic (reste identique)
+  // Chatbot logic
   const getBotResponse = (userMessage) => {
     const message = userMessage.toLowerCase();
 
@@ -449,7 +417,7 @@ const filteredJobs = useMemo(() => {
     }
   };
 
-  // Page détail d'offre (reste identique mais adapte les nouvelles données)
+  // Page détail d'offre
   if (selectedJob) {
     return (
       <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100'}`}>
@@ -710,15 +678,16 @@ const filteredJobs = useMemo(() => {
 
             <select
               value={contractFilter}
-              onChange={(e) => setContractFilter(normalizeContractType(e.target.value))}
+              onChange={(e) => setContractFilter(e.target.value)}
               className={`px-4 py-3 rounded-xl border ${darkMode ? 'border-gray-600 bg-gray-700/80 text-white focus:ring-blue-400 focus:border-blue-400' : 'border-gray-200 bg-white/80 focus:ring-blue-500 focus:border-transparent'} focus:ring-2 transition-all duration-200`}
             >
               <option value="">Type de contrat</option>
               <option value="CDI">CDI</option>
               <option value="CDD">CDD</option>
-              <option value="Contrat à durée déterminée">CDD</option>
               <option value="Freelance">Freelance</option>
               <option value="Stage">Stage</option>
+              <option value="Alternance">Alternance</option>
+              <option value="Intérim">Intérim</option>
             </select>
 
             <select
@@ -844,7 +813,7 @@ const filteredJobs = useMemo(() => {
             <div className={`mb-6 flex flex-col md:flex-row md:items-center justify-between ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               <div className="mb-2 md:mb-0">
                 <span className="text-sm">
-                  Affichage de {((currentPage - 1) * 12) + 1} à {Math.min(currentPage * 12, totalJobs)} sur {totalJobs} offres
+                  Affichage de {((currentPage - 1) * 12) + 1} à {Math.min(currentPage * 12, filteredJobs.length)} sur {totalJobs} offres
                   {(searchTerm || locationFilter || contractFilter || experienceFilter || workModeFilter || salaryMin !== 20000 || salaryMax !== 80000) && (
                     <span className="text-blue-600 dark:text-blue-400"> (filtrées)</span>
                   )}
@@ -1056,22 +1025,6 @@ const filteredJobs = useMemo(() => {
                 Chercheurs d'emploi
               </h4>
               <ul className="space-y-2">
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Rechercher un emploi</a></li>
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Conseils CV</a></li>
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Préparer un entretien</a></li>
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Tendances salaires</a></li>
-              </ul>
-            </div>
-
-            {/* Entreprises */}
-            <div>
-              <h4 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
-                Entreprises
-              </h4>
-              <ul className="space-y-2">
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Publier une offre</a></li>
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Solutions RH</a></li>
-                <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Tarifs</a></li>
                 <li><a href="#" className={`text-sm ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}>Support</a></li>
               </ul>
             </div>
@@ -1240,5 +1193,6 @@ const filteredJobs = useMemo(() => {
     </div>
   );
 };
+
 
 export default JobSearchApp;
